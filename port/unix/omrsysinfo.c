@@ -2017,6 +2017,52 @@ omrsysinfo_get_username(struct OMRPortLibrary *portLibrary, char *buffer, uintpt
 }
 
 intptr_t
+omrsysinfo_get_userhome(struct OMRPortLibrary *portLibrary, char *buffer, uintptr_t length)
+{
+	intptr_t rc = -1;
+	char usrname[1024];
+	char *homeDir = NULL;
+	size_t dirLen = 0;
+	struct passwd *pwent = NULL;
+
+	if (0 == omrsysinfo_get_username(portLibrary, usrname, 1024)) {
+		/* use getpwnam() instead of getpwuid() as multiple users can share the same uid */
+		pwent = getpwnam((const char*)usrname);
+		if (NULL != pwent) {
+			homeDir = pwent->pw_dir;
+			rc = 0;
+		}
+	}
+	if (NULL != homeDir) {
+		dirLen = strlen(homeDir);
+		if ((dirLen + 1) > length) {
+			rc = dirLen + 1;
+		}
+	}
+
+	if (0 == rc) {
+		portLibrary->str_printf(portLibrary, buffer, length, "%s", homeDir);
+	}
+
+#if defined(_IBM_ATOE_H_)
+	/* _IBM_ATOE_H_ is used instead of J9ZOS390 is to ensure that this code becomes dead code path
+	 * if we ever decide to retire atoe library. This macro is defined in atoe.h, which is only included by macro
+	 * J9ZOS390. Hence, there are no danger of undefined variable.
+	 * j9 atoe library used malloc. Need to free any structure obtained from getpwnam and getpwuid.
+	 */
+
+	if (NULL != pwent) {
+		free(pwent->pw_name);
+		free(pwent->pw_dir);
+		free(pwent->pw_shell);
+		free(pwent);
+	}
+#endif /* _IBM_ATOE_H_ */
+
+	return rc;
+}
+
+intptr_t
 omrsysinfo_get_groupname(struct OMRPortLibrary *portLibrary, char *buffer, uintptr_t length)
 {
 	char *remoteCopy = NULL;

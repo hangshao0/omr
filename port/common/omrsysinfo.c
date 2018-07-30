@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 1991, 2016 IBM Corp. and others
+ * Copyright (c) 1991, 2018 IBM Corp. and others
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which accompanies this
@@ -393,6 +393,27 @@ omrsysinfo_startup(struct OMRPortLibrary *portLibrary)
 */
 intptr_t
 omrsysinfo_get_username(struct OMRPortLibrary *portLibrary, char *buffer, uintptr_t length)
+{
+	return -1;
+}
+
+/**
+ * Query the operating system for the current user's home directory.
+ *
+ * Obtain the current user's home directory, and then write it out into the buffer
+ * supplied by the user
+ *
+ * @param[in] portLibrary The port Library
+ * @param[out] buffer Buffer for the user's home directory
+ * @param[in,out] length The length of the buffer
+ *
+ * @return 0 on success, number of bytes required to hold the
+ * information if the output buffer was too small, -1 on failure.
+ *
+ * @note buffer is undefined on error or when supplied buffer was too small.
+ */
+intptr_t
+omrsysinfo_get_userhome(struct OMRPortLibrary *portLibrary, char *buffer, uintptr_t length)
 {
 	return -1;
 }

@@ -1127,6 +1127,8 @@ typedef struct OMRPortLibrary {
 	intptr_t (*sysinfo_get_executable_name)(struct OMRPortLibrary *portLibrary, const char *argv0, char **result) ;
 	/** see @ref omrsysinfo.c::omrsysinfo_get_username "omrsysinfo_get_username"*/
 	intptr_t (*sysinfo_get_username)(struct OMRPortLibrary *portLibrary, char *buffer, uintptr_t length) ;
+	/** see @ref omrsysinfo.c::omrsysinfo_get_userhome "omrsysinfo_get_userhome"*/
+	intptr_t (*sysinfo_get_userhome)(struct OMRPortLibrary *portLibrary, char *buffer, uintptr_t length) ;
 	/** see @ref omrsysinfo.c::omrsysinfo_get_groupname "omrsysinfo_get_groupname"*/
 	intptr_t (*sysinfo_get_groupname)(struct OMRPortLibrary *portLibrary, char *buffer, uintptr_t length) ;
 	/** see @ref omrsysinfo.c::omrsysinfo_get_load_average "omrsysinfo_get_load_average"*/
@@ -1773,6 +1775,7 @@ extern J9_CFUNC int32_t omrport_getVersion(struct OMRPortLibrary *portLibrary);
 #define omrsysinfo_get_OS_type() privateOmrPortLibrary->sysinfo_get_OS_type(privateOmrPortLibrary)
 #define omrsysinfo_get_executable_name(param1,param2) privateOmrPortLibrary->sysinfo_get_executable_name(privateOmrPortLibrary, (param1), (param2))
 #define omrsysinfo_get_username(param1,param2) privateOmrPortLibrary->sysinfo_get_username(privateOmrPortLibrary, (param1), (param2))
+#define omrsysinfo_get_userhome(param1,param2) privateOmrPortLibrary->sysinfo_get_userhome(privateOmrPortLibrary, (param1), (param2))
 #define omrsysinfo_get_groupname(param1,param2) privateOmrPortLibrary->sysinfo_get_groupname(privateOmrPortLibrary, (param1), (param2))
 #define omrsysinfo_get_load_average(param1) privateOmrPortLibrary->sysinfo_get_load_average(privateOmrPortLibrary, (param1))
 #define omrsysinfo_get_CPU_utilization(param1) privateOmrPortLibrary->sysinfo_get_CPU_utilization(privateOmrPortLibrary, (param1))

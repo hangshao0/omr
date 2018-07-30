@@ -353,6 +353,39 @@ TEST(PortSysinfoTest, sysinfo_test3)
 	reportTestExit(OMRPORTLIB, testName);
 }
 
+TEST(PortSysinfoTest, sysinfo_test4)
+{
+	OMRPORT_ACCESS_FROM_OMRPORT(portTestEnv->getPortLibrary());
+#define J9SYSINFO_TEST4_USERHOME_LENGTH 1024
+	const char *testName = "omrsysinfo_test4";
+	char userhome[J9SYSINFO_TEST4_USERHOME_LENGTH];
+	intptr_t length = 0;
+	intptr_t rc = 0;
+
+	reportTestEntry(OMRPORTLIB, testName);
+
+	rc = omrsysinfo_get_userhome(userhome, J9SYSINFO_TEST4_USERHOME_LENGTH);
+	if (rc == -1) {
+		portTestEnv->log(LEVEL_ERROR, "omrsysinfo_get_userhome returns -1.\n");
+		portTestEnv->log(LEVEL_ERROR, "If this is a supported platform, consider this as a failure\n");
+		reportTestExit(OMRPORTLIB, testName);
+		return;
+	} else {
+		char msg[256] = "";
+		omrstr_printf(msg, sizeof(msg), "User's home directory returned = \"%s\"\n", userhome);
+		portTestEnv->log(msg);
+	}
+
+	length = strlen(userhome);
+	rc = omrsysinfo_get_userhome(userhome, length - 1);
+
+	if ((length + 1) != rc) {
+		outputErrorMessage(PORTTEST_ERROR_ARGS, "Error if userhome buffer is too short: rc= %d, Expecting rc to be %d, userhome is %s\n", rc, length + 1, userhome);
+	}
+
+	reportTestExit(OMRPORTLIB, testName);
+}
+
 
 TEST(PortSysinfoTest, sysinfo_test_sysinfo_ulimit_iterator)
 {

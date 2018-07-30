@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 IBM Corp. and others
+ * Copyright (c) 2015, 2018 IBM Corp. and others
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which accompanies this
@@ -27,6 +27,7 @@
 
 #include <pdh.h>
 #include <pdhmsg.h>
+#include <shlobj.h>
 #include <stdio.h>
 #include <windows.h>
 #include <WinSDKVer.h>
@@ -928,6 +929,46 @@ omrsysinfo_get_username(struct OMRPortLibrary *portLibrary, char *buffer, uintpt
 	}
 	portLibrary->mem_free_memory(portLibrary, unicodeBuffer);
 	return result;
+}
+
+/**
+ * Query the operating system for the current user's home directory.
+ *
+ * Obtain the current user's home directory, and then write it out into the buffer
+* supplied by the user
+*
+* @param[in] portLibrary The port Library
+* @param[out] buffer Buffer for the user's home directory
+* @param[in,out] length The length of the buffer
+*
+* @return 0 on success, number of bytes required to hold the
+* information if the output buffer was too small, -1 on failure.
+*
+* @note buffer is undefined on error or when supplied buffer was too small.
+*/
+intptr_t
+omrsysinfo_get_userhome(struct OMRPortLibrary *portLibrary, char *buffer, uintptr_t length)
+{
+	intptr_t rc = -1;
+	char* homedir = portLibrary->mem_allocate_memory(portLibrary, (MAX_PATH + 1) * 2, OMR_GET_CALLSITE(), OMRMEM_CATEGORY_PORT_LIBRARY);
+
+	memset(homedir, 0, (MAX_PATH + 1) * 2);
+	if (NULL != homedir) {
+		wchar_t *homedirW = (wchar_t*)homedir;
+
+		if(SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_PROFILE, NULL, 0, homedirW))) {
+			uintptr_t homedirWLen = wcslen(homedirW);
+
+			if (homedirWLen < length) {
+				omrstr_printf(portLibrary, buffer, length, "%ls", homedirW);
+				rc = 0;
+			} else {
+				rc = homedirWLen + 1;
+			}
+		}
+		portLibrary->mem_free_memory(portLibrary, homedir);
+	}
+	return rc;
 }
 /**
  * Query the operating system for the name of the group associate with the current thread

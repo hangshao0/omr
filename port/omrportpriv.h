@@ -486,6 +486,8 @@ omrsysinfo_get_ppid(struct OMRPortLibrary *portLibrary);
 extern J9_CFUNC intptr_t
 omrsysinfo_get_username(struct OMRPortLibrary *portLibrary, char *buffer, uintptr_t length);
 extern J9_CFUNC intptr_t
+omrsysinfo_get_userhome(struct OMRPortLibrary *portLibrary, char *buffer, uintptr_t length);
+extern J9_CFUNC intptr_t
 omrsysinfo_get_env(struct OMRPortLibrary *portLibrary, const char *envVar, char *infoString, uintptr_t bufSize);
 extern J9_CFUNC intptr_t
 omrsysinfo_get_load_average(struct OMRPortLibrary *portLibrary, struct J9PortSysInfoLoadData *loadAverageData);
