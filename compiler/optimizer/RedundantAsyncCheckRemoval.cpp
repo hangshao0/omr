@@ -402,6 +402,10 @@ bool TR_RedundantAsyncCheckRemoval::callDoesAnImplicitAsyncCheck(TR::Node *callN
        (symbol->getRecognizedMethod()==TR::java_lang_Math_min_I) ||
        (symbol->getRecognizedMethod()==TR::java_lang_Math_max_L) ||
        (symbol->getRecognizedMethod()==TR::java_lang_Math_min_L) ||
+       (symbol->getRecognizedMethod()==TR::java_lang_Math_max_D) ||
+       (symbol->getRecognizedMethod()==TR::java_lang_Math_min_D) ||
+       (symbol->getRecognizedMethod()==TR::java_lang_Math_max_F) ||
+       (symbol->getRecognizedMethod()==TR::java_lang_Math_min_F) ||
        (symbol->getRecognizedMethod()==TR::java_lang_Math_abs_L) ||
        (symbol->getRecognizedMethod()==TR::java_lang_Math_abs_D) ||
        (symbol->getRecognizedMethod()==TR::java_lang_Math_abs_F) ||
@@ -431,8 +435,11 @@ bool TR_RedundantAsyncCheckRemoval::callDoesAnImplicitAsyncCheck(TR::Node *callN
    if (symbol->isNative() &&
        ((symbol->getRecognizedMethod()==TR::sun_misc_Unsafe_compareAndSwapInt_jlObjectJII_Z) ||
        (symbol->getRecognizedMethod()==TR::sun_misc_Unsafe_compareAndSwapLong_jlObjectJJJ_Z) ||
-       (symbol->getRecognizedMethod()==TR::sun_misc_Unsafe_compareAndSwapObject_jlObjectJjlObjectjlObject_Z))
-      )
+       (symbol->getRecognizedMethod()==TR::sun_misc_Unsafe_compareAndSwapObject_jlObjectJjlObjectjlObject_Z) ||
+       (symbol->getRecognizedMethod()==TR::jdk_internal_misc_Unsafe_compareAndExchangeInt) ||
+       (symbol->getRecognizedMethod()==TR::jdk_internal_misc_Unsafe_compareAndExchangeLong) ||
+       (symbol->getRecognizedMethod()==TR::jdk_internal_misc_Unsafe_compareAndExchangeObject) ||
+       (symbol->getRecognizedMethod()==TR::jdk_internal_misc_Unsafe_compareAndExchangeReference)))
       return false;
 #endif
    return true;

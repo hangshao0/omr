@@ -1626,53 +1626,57 @@ TR_Debug::getName(TR::SymbolReference * symRef)
          case TR::SymbolReferenceTable::synchronizedFieldLoadSymbol:
             return "<synchronizedFieldLoad>";
          case TR::SymbolReferenceTable::atomicAddSymbol:
-             return "<atomicAdd>";
+            return "<atomicAdd>";
          case TR::SymbolReferenceTable::atomicFetchAndAddSymbol:
-             return "<atomicFetchAndAdd>";
+            return "<atomicFetchAndAdd>";
          case TR::SymbolReferenceTable::atomicFetchAndAdd32BitSymbol:
-             return "<atomicFetchAndAdd32Bit>";
+            return "<atomicFetchAndAdd32Bit>";
          case TR::SymbolReferenceTable::atomicFetchAndAdd64BitSymbol:
-             return "<atomicFetchAndAdd64Bit>";
+            return "<atomicFetchAndAdd64Bit>";
          case TR::SymbolReferenceTable::atomicSwapSymbol:
-             return "<atomicSwap>";
+            return "<atomicSwap>";
          case TR::SymbolReferenceTable::atomicSwap32BitSymbol:
-             return "<atomicSwap32Bit>";
+            return "<atomicSwap32Bit>";
          case TR::SymbolReferenceTable::atomicSwap64BitSymbol:
-             return "<atomicSwap64Bit>";
+            return "<atomicSwap64Bit>";
          case TR::SymbolReferenceTable::atomicCompareAndSwapReturnStatusSymbol:
-             return "<atomicCompareAndSwapReturnStatus>";
+            return "<atomicCompareAndSwapReturnStatus>";
          case TR::SymbolReferenceTable::atomicCompareAndSwapReturnValueSymbol:
-             return "<atomicCompareAndSwapReturnValue>";
+            return "<atomicCompareAndSwapReturnValue>";
          case TR::SymbolReferenceTable::potentialOSRPointHelperSymbol:
-             return "<potentialOSRPointHelper>";
+            return "<potentialOSRPointHelper>";
          case TR::SymbolReferenceTable::osrFearPointHelperSymbol:
-             return "<osrFearPointHelper>";
+            return "<osrFearPointHelper>";
          case TR::SymbolReferenceTable::eaEscapeHelperSymbol:
-             return "<eaEscapeHelper>";
+            return "<eaEscapeHelper>";
          case TR::SymbolReferenceTable::j9VMThreadTempSlotFieldSymbol:
-             return "<j9VMThreadTempSlotFieldSymbol>";
+            return "<j9VMThreadTempSlotFieldSymbol>";
          case TR::SymbolReferenceTable::computedStaticCallSymbol:
-             return "<computedStaticCallSymbol>";
+            return "<computedStaticCall>";
          case TR::SymbolReferenceTable::j9VMThreadFloatTemp1Symbol:
-             return "<j9VMThreadFloatTemp1Symbol>";
+            return "<j9VMThreadFloatTemp1>";
          case TR::SymbolReferenceTable::objectEqualityComparisonSymbol:
-             return "<objectEqualityComparison>";
+            return "<objectEqualityComparison>";
          case TR::SymbolReferenceTable::objectInequalityComparisonSymbol:
-             return "<objectInequalityComparison>";
+            return "<objectInequalityComparison>";
          case TR::SymbolReferenceTable::nonNullableArrayNullStoreCheckSymbol:
-             return "<nonNullableArrayNullStoreCheck>";
+            return "<nonNullableArrayNullStoreCheck>";
          case TR::SymbolReferenceTable::loadFlattenableArrayElementNonHelperSymbol:
-             return "<loadFlattenableArrayElementNonHelper>";
+            return "<loadFlattenableArrayElementNonHelper>";
          case TR::SymbolReferenceTable::storeFlattenableArrayElementNonHelperSymbol:
-             return "<storeFlattenableArrayElementNonHelper>";
+            return "<storeFlattenableArrayElementNonHelper>";
          case TR::SymbolReferenceTable::J9JNIMethodIDvTableIndexFieldSymbol:
-             return "<J9JNIMethodIDvTableIndexFieldSymbol>";
+            return "<J9JNIMethodIDvTableIndexField>";
          case TR::SymbolReferenceTable::contiguousArrayDataAddrFieldSymbol:
-             return "<contiguousArrayDataAddrFieldSymbol>";
+            return "<contiguousArrayDataAddrField>";
          case TR::SymbolReferenceTable::defaultValueSymbol:
-             return "<defaultValue>";
+            return "<defaultValue>";
          case TR::SymbolReferenceTable::jitDispatchJ9MethodSymbol:
-             return "<jitDispatchJ9Method>";
+            return "<jitDispatchJ9Method>";
+         case TR::SymbolReferenceTable::jProfileValueSymbol:
+            return "<jProfileValue>";
+         case TR::SymbolReferenceTable::jProfileValueWithNullCHKSymbol:
+            return "<jProfileValueWithNullCHK>";
          }
       }
 
@@ -2078,7 +2082,7 @@ static const char *commonNonhelperSymbolNames[] =
    "<componentClass>",
    "<componentClassAsPrimitive>",
    "<isArray>",
-   "<isClassAndDepthFlags>",
+   "<isClassDepthAndFlags>",
    "<initializeStatusFromClass>",
    "<isClassFlags>",
    "<vft>",
@@ -3827,12 +3831,6 @@ TR_Debug::getRuntimeHelperName(int32_t index)
             case TR_IA32double2LongSSE:                               return "__SSEdouble2LongIA32";
             case TR_IA32jitCollapseJNIReferenceFrame:                 return "_jitCollapseJNIReferenceFrame";
 
-            case TR_IA32compressString:                               return "_compressString";
-            case TR_IA32compressStringNoCheck:                        return "_compressStringNoCheck";
-            case TR_IA32compressStringJ:                              return "_compressStringJ";
-            case TR_IA32compressStringNoCheckJ:                       return "_compressStringNoCheckJ";
-            case TR_IA32andORString:                                  return "_andORString";
-
             case TR_IA32samplingRecompileMethod:                      return "__samplingRecompileMethod";
             case TR_IA32countingRecompileMethod:                      return "__countingRecompileMethod";
             case TR_IA32samplingPatchCallSite:                        return "__samplingPatchCallSite";
@@ -3853,12 +3851,6 @@ TR_Debug::getRuntimeHelperName(int32_t index)
             case TR_AMD64icallVMprJavaSendVirtualF:                   return "_icallVMprJavaSendVirtualF";
             case TR_AMD64icallVMprJavaSendVirtualD:                   return "_icallVMprJavaSendVirtualD";
             case TR_AMD64jitCollapseJNIReferenceFrame:                return "_jitCollapseJNIReferenceFrame";
-
-            case TR_AMD64compressString:                               return "_compressString";
-            case TR_AMD64compressStringNoCheck:                        return "_compressStringNoCheck";
-            case TR_AMD64compressStringJ:                              return "_compressStringJ";
-            case TR_AMD64compressStringNoCheckJ:                       return "_compressStringNoCheckJ";
-            case TR_AMD64andORString:                                  return "_andORString";
 
             case TR_AMD64samplingRecompileMethod:                     return "__samplingRecompileMethod";
             case TR_AMD64countingRecompileMethod:                     return "__countingRecompileMethod";
@@ -3952,12 +3944,6 @@ TR_Debug::getRuntimeHelperName(int32_t index)
 
          case TR_PPCencodeUTF16Big:                                return "__encodeUTF16Big";
          case TR_PPCencodeUTF16Little:                             return "__encodeUTF16Little";
-
-         case TR_PPCcompressString:                                 return "__compressString";
-         case TR_PPCcompressStringNoCheck:                          return "__compressStringNoCheck";
-         case TR_PPCcompressStringJ:                                return "__compressStringJ";
-         case TR_PPCcompressStringNoCheckJ:                         return "__compressStringNoCheckJ";
-         case TR_PPCandORString:                                    return "__andORString";
 
          case TR_PPCreferenceArrayCopy:                            return "__referenceArrayCopy";
          case TR_PPCgeneralArrayCopy:                              return "__generalArrayCopy";
@@ -4252,14 +4238,6 @@ TR_Debug::getRuntimeHelperName(int32_t index)
          case TR_ARM64arrayCopy:                                   return "__arrayCopy";
          case TR_ARM64forwardArrayCopy:                            return "__forwardArrayCopy";
          case TR_ARM64backwardArrayCopy:                           return "__backwardArrayCopy";
-         case TR_ARM64forwardQuadWordArrayCopy:                    return "__fwQuadWordArrayCopy";
-         case TR_ARM64forwardDoubleWordArrayCopy:                  return "__fwDoubleWordArrayCopy";
-         case TR_ARM64forwardWordArrayCopy:                        return "__fwWordArrayCopy";
-         case TR_ARM64forwardHalfWordArrayCopy:                    return "__fwHalfWordArrayCopy";
-         case TR_ARM64backwardQuadWordArrayCopy:                   return "__bwQuadWordArrayCopy";
-         case TR_ARM64backwardDoubleWordArrayCopy:                 return "__bwDoubleWordArrayCopy";
-         case TR_ARM64backwardWordArrayCopy:                       return "__bwWordArrayCopy";
-         case TR_ARM64backwardHalfWordArrayCopy:                   return "__bwHalfWordArrayCopy";
          case TR_ARM64interfaceCompleteSlot2:                      return "_interfaceCompleteSlot2";
          case TR_ARM64interfaceSlotsUnavailable:                   return "_interfaceSlotsUnavailable";
          case TR_ARM64PatchGCRHelper:                              return "_patchGCRHelper" ;
@@ -5092,7 +5070,8 @@ void TR_Debug::setupDebugger(void *startaddr, void *endaddr, bool before)
          Argv[0] = "/tr/zos-tools/bin/dbxattach";
          // for break_before, although command file is always the same,
          // we generate it dynamically for consistency with other platforms
-         if (cf = fopen(cfname, "wb+"))
+         cf = fopen(cfname, "wb+");
+         if (NULL != cf)
             {
             fprintf(cf, "set $unsafebps\n");
             fprintf(cf, "set $unsafegoto\n");
@@ -5123,7 +5102,8 @@ void TR_Debug::setupDebugger(void *startaddr, void *endaddr, bool before)
             fclose(cf);
             }
          // check for dbx that cfname file could be read (dbx does not do this check)
-         if (cf = fopen(cfname, "r"))
+         cf = fopen(cfname, "r");
+         if (NULL != cf)
             {
             struct inheritance inh = { 0 }; /* use all the default inheritance stuff */
             int fdCount = 0; /* inherit all file descriptors from parent */

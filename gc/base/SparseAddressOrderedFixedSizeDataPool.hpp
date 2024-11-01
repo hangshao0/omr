@@ -45,9 +45,6 @@ public:
 	void *_dataPtr; /**< Object data pointer related to proxy object */
 	void *_proxyObjPtr; /**< Pointer to proxy object that is residing in-heap */
 	uintptr_t _size; /**< Total size of the data pointed to by dataPtr */
-#if defined(OMR_GC_DOUBLE_MAPPING_FOR_SPARSE_HEAP_ALLOCATION)
-	struct J9PortVmemIdentifier *_identifier; /**< Identifier associated with double mapped region */
-#endif /* OMR_GC_DOUBLE_MAPPING_FOR_SPARSE_HEAP_ALLOCATION */
 
 /*
  *  Function members
@@ -74,16 +71,6 @@ public:
 		, _size(size)
 	{
 	}
-
-#if defined(OMR_GC_DOUBLE_MAPPING_FOR_SPARSE_HEAP_ALLOCATION)
-	MM_SparseDataTableEntry(void *dataPtr, void* proxyObjPtr, uintptr_t size, struct J9PortVmemIdentifier *identifier)
-		: _dataPtr(dataPtr)
-		, _proxyObjPtr(proxyObjPtr)
-		, _size(size)
-		, _identifier(identifier)
-	{
-	}
-#endif /* OMR_GC_DOUBLE_MAPPING_FOR_SPARSE_HEAP_ALLOCATION */
 };
 
 class MM_SparseAddressOrderedFixedSizeDataPool : public MM_BaseVirtual
@@ -99,6 +86,7 @@ protected:
 	uintptr_t _lastFreeBytes; /**< Number of bytes free at end of last GC */
 	uintptr_t _freeListPoolFreeNodesCount; /**< Number of free list nodes. There's always at least one node in list therefore >= 1 */
 	uintptr_t _freeListPoolAllocBytes; /**< Byte amount allocated from sparse heap */
+	uintptr_t _allocObjectCount; /**< Object count allocated from sparse heap */
 
 	MM_GCExtensionsBase *_extensions; /**< GC Extensions for this JVM */
 	J9Pool *_freeListPool; /**< Memory pool to be used to create MM_SparseHeapLinkedFreeHeader nodes */
@@ -131,24 +119,6 @@ public:
 	 * @param size		uintptr_t	Size of region to be returned to freeList
 	 */
 	bool returnFreeListEntry(void *address, uintptr_t size);
-
-#if defined(OMR_GC_DOUBLE_MAPPING_FOR_SPARSE_HEAP_ALLOCATION)
-	/**
-	 * Record J9PortVmemIdentifier associated with data pointer
-	 *
-	 * @param dataPtr		void*	Data pointer
-	 * @param identifier 	J9PortVmemIdentifier for data pointer
-	 */
-	void recordDoubleMapIdentifierForData(void *dataPtr, struct J9PortVmemIdentifier *identifier);
-
-	/**
-	 * Get J9PortVmemIdentifier associated with data pointer
-	 *
-	 * @param dataPtr	void*		Data pointer
-	 * @return J9PortVmemIdentifier of data pointer
-	 */
-	struct J9PortVmemIdentifier* findIdentifierForSparseDataPtr(void *dataPtr);
-#endif /* OMR_GC_DOUBLE_MAPPING_FOR_SPARSE_HEAP_ALLOCATION */
 
 	/**
 	 * Add object entry to the hash table that maps the proxyObjPtr to the data pointer
@@ -226,6 +196,14 @@ public:
 	}
 
 	/**
+	 * Get the total count of the allocated objects
+	 */
+	MMINLINE uintptr_t getAllocObjectCount()
+	{
+		return _allocObjectCount;
+	}
+
+	/**
 	 * Update the proxyObjPtr after an object has moved for the sparse data entry associated with the given dataPtr.
 	 *
 	 * @param dataPtr		void*	Data pointer
@@ -247,6 +225,7 @@ protected:
 		, _lastFreeBytes(0)
 		, _freeListPoolFreeNodesCount(0)
 		, _freeListPoolAllocBytes(0)
+		, _allocObjectCount(0)
 		, _extensions(env->getExtensions())
 		, _freeListPool(NULL)
 		, _heapFreeList(NULL)

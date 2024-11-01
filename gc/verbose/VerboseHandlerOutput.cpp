@@ -390,10 +390,11 @@ MM_VerboseHandlerOutput::outputInitializedRegion(MM_EnvironmentBase *env, MM_Ver
 	const char *arrayletDoubleMappingStatus = _extensions->indexableObjectModel.isDoubleMappingEnabled() ? "enabled" : "disabled";
 	const char *arrayletDoubleMappingRequested = isArrayletDoubleMapRequested ? "true" : "false";
 #endif /* OMR_GC_DOUBLE_MAP_ARRAYLETS */
+#if defined(OMR_GC_SPARSE_HEAP_ALLOCATION)
 	bool isVirtualLargeObjectHeapRequested = _extensions->isVirtualLargeObjectHeapRequested;
 	const char *virtualLargeObjectHeapStatus = _extensions->isVirtualLargeObjectHeapEnabled ? "enabled" : "disabled";
 	const char *virtualLargeObjectHeapRequested = isVirtualLargeObjectHeapRequested ? "true" : "false";
-
+#endif /* OMR_GC_SPARSE_HEAP_ALLOCATION */
 	buffer->formatAndOutput(env, 1, "<region>");
 	buffer->formatAndOutput(env, 2, "<attribute name=\"regionSize\" value=\"%zu\" />", _extensions->getHeap()->getHeapRegionManager()->getRegionSize());
 	buffer->formatAndOutput(env, 2, "<attribute name=\"regionCount\" value=\"%zu\" />", _extensions->getHeap()->getHeapRegionManager()->getTableRegionCount());
@@ -403,8 +404,10 @@ MM_VerboseHandlerOutput::outputInitializedRegion(MM_EnvironmentBase *env, MM_Ver
 		buffer->formatAndOutput(env, 2, "<attribute name=\"arrayletDoubleMappingRequested\" value=\"%s\"/>", arrayletDoubleMappingRequested);
 		buffer->formatAndOutput(env, 2, "<attribute name=\"arrayletDoubleMapping\" value=\"%s\"/>", arrayletDoubleMappingStatus);
 #endif /* OMR_GC_DOUBLE_MAP_ARRAYLETS */
+#if defined(OMR_GC_SPARSE_HEAP_ALLOCATION)
 		buffer->formatAndOutput(env, 2, "<attribute name=\"virtualLargeObjectHeapRequested\" value=\"%s\"/>", virtualLargeObjectHeapRequested);
 		buffer->formatAndOutput(env, 2, "<attribute name=\"virtualLargeObjectHeapStatus\" value=\"%s\"/>", virtualLargeObjectHeapStatus);
+#endif /* OMR_GC_SPARSE_HEAP_ALLOCATION */
 	}
 	buffer->formatAndOutput(env, 1, "</region>");
 }
@@ -891,8 +894,14 @@ MM_VerboseHandlerOutput::printAllocationStats(MM_EnvironmentBase* env)
 
 	if (_extensions->isVLHGC()) {
 #if defined(OMR_GC_VLHGC)
-		writer->formatAndOutput(env, 1, "<allocated-bytes non-tlh=\"%zu\" tlh=\"%zu\" arrayletleaf=\"%zu\"/>",
+		if (_extensions->isVirtualLargeObjectHeapEnabled) {
+			writer->formatAndOutput(env, 1, "<allocated-bytes non-tlh=\"%zu\" tlh=\"%zu\" offheap=\"%zu\"/>",
 				systemStats->nontlhBytesAllocated(), systemStats->tlhBytesAllocated(), systemStats->_arrayletLeafAllocationBytes);
+
+		} else {
+			writer->formatAndOutput(env, 1, "<allocated-bytes non-tlh=\"%zu\" tlh=\"%zu\" arrayletleaf=\"%zu\"/>",
+				systemStats->nontlhBytesAllocated(), systemStats->tlhBytesAllocated(), systemStats->_arrayletLeafAllocationBytes);
+		}
 #endif /* OMR_GC_VLHGC */
 	} else if (_extensions->isStandardGC()) {
 #if defined(OMR_GC_MODRON_STANDARD)
@@ -934,6 +943,11 @@ MM_VerboseHandlerOutput::handleGCStart(J9HookInterface** hook, uintptr_t eventNu
 
 	enterAtomicReportingBlock();
 	writer->formatAndOutput(env, 0, "<gc-start %s>", tagTemplate);
+
+	if (stats->_cpuUtilStats._validData) {
+		writer->formatAndOutput(env, 1, "<cpu-util id=\"%zu\" total=\"%.2f\" process=\"%.2f\" />",
+				_manager->getIdAndIncrement(), stats->_cpuUtilStats._avgCpuUtil * 100, stats->_cpuUtilStats._avgProcUtil * 100);
+	}
 	outputMemoryInfo(env, _manager->getIndentLevel() + 1, stats);
 	writer->formatAndOutput(env, 0, "</gc-start>");
 	exitAtomicReportingBlock();

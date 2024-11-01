@@ -33,6 +33,7 @@
 #include "AllocationStats.hpp"
 #include "ArrayObjectModel.hpp"
 #include "BaseVirtual.hpp"
+#include "CPUUtilStats.hpp"
 #include "ExcessiveGCStats.hpp"
 #include "Forge.hpp"
 #include "GlobalGCStats.hpp"
@@ -570,8 +571,8 @@ public:
 
 	/* global variables for excessiveGC functionality */
 	MM_UserSpecifiedParameterBool excessiveGCEnabled; /**< should we check for excessiveGC? (set through -XdisableExcessiveGC and -XenableExcessiveGC) */
-	bool isRecursiveGC; /**< is the current executing gc a result of another gc (ie: scavenger triggering a global collect) */
-	bool didGlobalGC; /**< has a global gc occurred in the current gc (possibly as a result of a recursive gc) */
+	bool isRecursiveGC; /**< is the current executing GC a result of another GC (ie: scavenger triggering a global collect) */
+	bool didGlobalGC; /**< has a global GC (all heap GCed) occurred in the current GC (possibly as a result of a recursive GC) */
 	ExcessiveLevel excessiveGCLevel;
 	float excessiveGCnewRatioWeight;
 	uintptr_t excessiveGCratio;
@@ -742,8 +743,10 @@ public:
 	};
 	HeapInitializationFailureReason heapInitializationFailureReason; /**< Error code provided additional information about heap initialization failure */
 	bool scavengerAlignHotFields; /**< True if the scavenger is to check the hot field description for an object in order to better cache align it when tenuring (enabled with the -Xgc:hotAlignment option) */
-	uintptr_t suballocatorInitialSize; /**< the initial chunk size in bytes for the J9Heap suballocator (enabled with the -Xgc:suballocatorInitialSize option) */
-	uintptr_t suballocatorCommitSize; /**< the commit size in bytes for the J9Heap suballocator (enabled with the -Xgc:suballocatorCommitSize option) */
+	uintptr_t suballocatorInitialSize; /**< the initial chunk size in bytes for the heap suballocator (enabled with the -Xgc:suballocatorInitialSize option) */
+	uintptr_t suballocatorCommitSize; /**< the commit size in bytes for the heap suballocator (enabled with the -Xgc:suballocatorCommitSize option) */
+	uintptr_t suballocatorIncrementSize; /**< the increment size in bytes for the heap suballocator (enabled with the -Xgc:suballocatorIncrementSize option) */
+	bool suballocatorQuickAlloc; /**< use OMRPORT_VMEM_ALLOC_QUICK for the heap suballocator (disabled with the -Xgc:suballocatorQuickAllocDisable option) (Linux only) */
 
 #if defined(OMR_GC_COMPRESSED_POINTERS)
 	bool shouldAllowShiftingCompression; /**< temporary option to enable compressed reference scaling by shifting pointers */
@@ -876,6 +879,7 @@ public:
 #endif /* defined(OMR_VALGRIND_MEMCHECK) */
 
 	bool shouldForceLowMemoryHeapCeilingShiftIfPossible; /**< Whether we should force compressed reference shift to 3 **/
+	MM_CPUUtilStats cpuUtilStats; /**< CPU/process util between any STW GC increments, hence not part of any Collector Stats */
 	/* Function Members */
 private:
 
@@ -1866,8 +1870,10 @@ public:
 		, heapCeiling(0) /* default for normal platforms is 0 (i.e. no ceiling) */
 		, heapInitializationFailureReason(HEAP_INITIALIZATION_FAILURE_REASON_NO_ERROR)
 		, scavengerAlignHotFields(true) /* VM Design 1774: hot field alignment is on by default */
-		, suballocatorInitialSize(SUBALLOCATOR_INITIAL_SIZE) /* default for J9Heap suballocator initial size is 200 MB */
-		, suballocatorCommitSize(SUBALLOCATOR_COMMIT_SIZE) /* default for J9Heap suballocator commit size is 50 MB */
+		, suballocatorInitialSize(SUBALLOCATOR_INITIAL_SIZE) /* default for heap suballocator initial size is 200 MB */
+		, suballocatorCommitSize(SUBALLOCATOR_COMMIT_SIZE) /* default for heap suballocator commit size is 50 MB */
+		, suballocatorIncrementSize(SUBALLOCATOR_INCREMENT_SIZE) /* default for heap suballocator commit size is 8 MB or 256 MB for AIX */
+		, suballocatorQuickAlloc(true) /* use mmap-based allocation by default for the heap suballocator (Linux only) */
 #if defined(OMR_GC_COMPRESSED_POINTERS)
 		, shouldAllowShiftingCompression(true) /* VM Design 1810: shifting compression enabled, by default, for compressed refs */
 		, shouldForceSpecifiedShiftingCompression(0)
@@ -1967,6 +1973,7 @@ public:
 		, valgrindMempoolAddr(0)
 		, memcheckHashTable(NULL)
 		, shouldForceLowMemoryHeapCeilingShiftIfPossible(false)
+		, cpuUtilStats()
 #endif /* defined(OMR_VALGRIND_MEMCHECK) */
 	{
 		_typeId = __FUNCTION__;

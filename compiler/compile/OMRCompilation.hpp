@@ -575,6 +575,17 @@ public:
 
    TR::list<TR::Snippet*> *getSnippetsToBePatchedOnClassRedefinition();
 
+  /*
+   * \brief
+   *    Inserts new first block into the IL
+   *
+   * \note
+   *    Inserts an empty block before the current first block
+   *    Moves glRegDeps from the current first block to the new one
+   *
+   */
+   TR::Block *insertNewFirstBlock();
+
    TR::RegisterCandidates *getGlobalRegisterCandidates() { return _globalRegisterCandidates; }
    void setGlobalRegisterCandidates(TR::RegisterCandidates *t) { _globalRegisterCandidates = t; }
 
@@ -852,7 +863,7 @@ public:
    const char *getHotnessName();
 
    template<typename Exception>
-   void failCompilation(const char *format, ...)
+   void OMR_NORETURN failCompilation(const char *format, ...)
       {
       char buffer[512];
 
