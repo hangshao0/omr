@@ -3833,6 +3833,8 @@ omrthread_monitor_enter(omrthread_monitor_t monitor)
 		return 0;
 	}
 
+	printf("Entered monitor5 %p owner is %p\n", monitor, self);
+
 #if defined(OMR_THR_THREE_TIER_LOCKING)
 	return monitor_enter_three_tier(self, monitor, DONT_SET_ABORTABLE);
 #else /* defined(OMR_THR_THREE_TIER_LOCKING) */
@@ -3871,6 +3873,8 @@ omrthread_monitor_enter_using_threadId(omrthread_monitor_t monitor, omrthread_t 
 		return 0;
 	}
 
+	printf("Entered monitor70 %p owner is %p\n", monitor, threadId);
+
 #if defined(OMR_THR_THREE_TIER_LOCKING)
 	return monitor_enter_three_tier(threadId, monitor, DONT_SET_ABORTABLE);
 #else /* defined(OMR_THR_THREE_TIER_LOCKING) */
@@ -3905,6 +3909,8 @@ omrthread_monitor_enter_abortable_using_threadId(omrthread_monitor_t monitor, om
 		UPDATE_JLM_MON_ENTER(threadId, monitor, IS_RECURSIVE_ENTER, !IS_SLOW_ENTER);
 		return 0;
 	}
+
+	printf("Entered monitor6 %p owner is %p\n", monitor, threadId);
 
 #if defined(OMR_THR_THREE_TIER_LOCKING)
 	return monitor_enter_three_tier(threadId, monitor, SET_ABORTABLE);
@@ -4000,6 +4006,7 @@ monitor_enter_three_tier(omrthread_t self, omrthread_monitor_t monitor, BOOLEAN 
 		{
 			monitor->owner = self;
 			monitor->count = 1;
+
 			ASSERT(monitor->spinlockState != J9THREAD_MONITOR_SPINLOCK_UNOWNED);
 			break;
 		}
